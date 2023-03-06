@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2442f46f-390f-4bf3-a36c-def1e76c95be" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="choice-routerFlow" doc:id="b923d4e9-4e05-4660-a41e-35d549cb5f18" >
+		<http:listener doc:name="Listener" doc:id="8fe89aab-c65c-41a6-9f1c-63a216693fcf" config-ref="HTTP_Listener_config" path="/test"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="b54fb16e-cc5e-49bc-994c-59952e1a7b73" variableName="store"/>
+		<logger level="INFO" doc:name="Logger" doc:id="00a32340-d1f2-4dea-bda9-d19ea2e2655f" message=";;;;before choice router logger;;;;;#[payload]"/>
+		<choice doc:name="Choice" doc:id="3a7df1fc-b373-4e11-884a-7794f5af5701" >
+			<when expression="#[vars.department == 'student']">
+				<ee:transform doc:name="Transform Message" doc:id="21414566-2e17-47da-b4b5-e44bef8ab9eb" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[payload."department" == "lecturer"]'>
+				<ee:transform doc:name="Transform Message" doc:id="2fb67a94-4db2-4c15-a3e6-0b0d0da6e5d0" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression='#[payload."department" == "police department"]'>
+				<ee:transform doc:name="Transform Message" doc:id="29ba2372-62a9-427b-804a-996def215e44" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="203a8bb4-d4f5-4f19-bf60-ae215940092f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="8bb6d216-e22f-446b-b5d9-48faac88ebf4" message=";;;;;after choice router logger;;;;;#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="1aa3fedc-1137-4865-83f0-7d6d8b69b0b0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
